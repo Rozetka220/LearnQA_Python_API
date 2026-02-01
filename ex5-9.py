@@ -1,5 +1,5 @@
 import json
-
+import time
 import requests
 
 #ex4
@@ -65,4 +65,18 @@ for method in methods_list:
     print(request.text)
 
 #ex8
+
+create_task = requests.get('https://playground.learnqa.ru/ajax/api/longtime_job')
+token = create_task.json().get('token')
+seconds = create_task.json().get('seconds')
+
+check_task_1 = requests.get('https://playground.learnqa.ru/ajax/api/longtime_job', params=f'token={token}')
+print('Проверка статуса, пока задание еще не выполнено', check_task_1.json().get('status'))
+
+time.sleep(seconds)
+
+check_task_2 = requests.get('https://playground.learnqa.ru/ajax/api/longtime_job', params=f'token={token}')
+
+print('Проверка статуса после выполнения задачи', check_task_2.json().get('status'))
+print('Проверка результата выполнения задачи', check_task_2.json().get('result'))
 
