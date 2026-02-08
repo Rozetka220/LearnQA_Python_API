@@ -1,8 +1,16 @@
-import requests
+#import requests
 import pytest
+import requests
+from pygments.lexers import data
+
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+from lib.my_requests import MyRequests
+import allure
 
+
+#запуск тестов pytest --alluredir=test_results/ .\tests\test_user_auth.py
+@allure.epic("Authorization_cases")
 class TestUserAuth(BaseCase):
     #Параметры для тестов, принято выносить на самый вверх
     exclude_params = [
@@ -16,7 +24,7 @@ class TestUserAuth(BaseCase):
             'email': 'useremal12345@email.ru',
             'password': '12345'
         }
-        response1 = requests.post('https://playground.learnqa.ru/api/user/login', data=data)
+        response1 =  MyRequests.post(url='/user/login', data=data) #requests.post('https://playground.learnqa.ru/api/user/login', data=data)
 
         #assert 'user_id' in response1.json(), 'Нет user_id в ответе'
 
@@ -27,9 +35,10 @@ class TestUserAuth(BaseCase):
         self.user_id_auth = self.get_json_value(response1, 'user_id')
 
         #self.user_id_auth = response1.json()['user_id']
-
+    @allure.description('Это положительный тест на авторизацию пользователя')
     def test_auth_user(self):
-        response2 = requests.get('https://playground.learnqa.ru/api/user/auth', headers={'x-csrf-token': self.token}, cookies={'auth_sid': self.auth_sid})
+        #response2 = requests.get('https://playground.learnqa.ru/api/user/auth', headers={'x-csrf-token': self.token}, cookies={'auth_sid': self.auth_sid})
+        response2 = MyRequests.get(url='/user/auth', headers={'x-csrf-token': self.token}, cookies={'auth_sid': self.auth_sid})
 
         Assertions.assert_json_value_by_name(response2, 'user_id', self.user_id_auth, 'User_ID отличаются')
 
@@ -37,12 +46,15 @@ class TestUserAuth(BaseCase):
         #user_id_check = response2.json()['user_id']
         #assert user_id_check == self.user_id_auth, 'Юзер айди отличаются'
 
+    @allure.description('Это негативный тест на авторизацию пользователя')
     @pytest.mark.parametrize('condition', exclude_params)
     def test_negative_auth_check(self, condition):
         if condition == "no_cookie":
-            response2 = requests.get('https://playground.learnqa.ru/api/user/auth', headers={'x-csrf-token': self.token})
+            #response2 = requests.get('https://playground.learnqa.ru/api/user/auth', headers={'x-csrf-token': self.token})
+            response2 = MyRequests.get(url='/user/auth', headers={'x-csrf-token': self.token})
         else:
-            response2 = requests.get('https://playground.learnqa.ru/api/user/auth', cookies={'auth_sid': self.auth_sid})
+            #response2 = requests.get('https://playground.learnqa.ru/api/user/auth', cookies={'auth_sid': self.auth_sid})
+            response2 = MyRequests.get(url='/user/auth', cookies={'auth_sid': self.auth_sid})
 
         Assertions.assert_json_value_by_name(response2, 'user_id', 0, '"Произошла авторизация без {condition}')
         #assert 'user_id' in response2.json(), "Первый запрос не вернул user_id"

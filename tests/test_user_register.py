@@ -1,10 +1,10 @@
 from datetime import datetime
 
-import requests
 import json
 import pytest
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+from lib.my_requests import MyRequests
 
 class TestUserRegister():
     def setup_method(self):
@@ -20,7 +20,8 @@ class TestUserRegister():
             'lastName': 'второеимя',
             'email': self.email
         }
-        response = requests.post(url='https://playground.learnqa.ru/api/user/', data=data)
+        #response = requests.post(url='https://playground.learnqa.ru/api/user/', data=data)
+        response = MyRequests.post(url='/user/', data=data)
         Assertions.assert_code_status(response, 200)
         Assertions.assert_json_has_key(response, 'id')
 
@@ -33,7 +34,8 @@ class TestUserRegister():
             'lastName': 'второеимя',
             'email': email
         }
-        response = requests.post(url='https://playground.learnqa.ru/api/user/', data=data)
+        #response = requests.post(url='https://playground.learnqa.ru/api/user/', data=data)
+        response = MyRequests.post(url='/user/', data=data)
         Assertions.assert_code_status(response, 400)
         assert response.text == f"Users with email '{email}' already exists", f'Ответ сервера {response.content}'
 
